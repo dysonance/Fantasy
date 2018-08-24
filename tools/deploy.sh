@@ -24,6 +24,9 @@ psql -U nfldb nfldb < $SNAPSHOT_DIR/$SNAPSHOT_SQL
 
 # install python packages
 echo "setting up python dependencies"
-pip2 install nfldb
+pip2 install --user nfldb
 mkdir -p $HOME/.config/nfldb
-cp /usr/local/share/nfldb/config.ini.sample $HOME/.config/nfldb/config.ini
+cp $HOME/Library/Python/2.7/share/nfldb/config.ini.sample $HOME/.config/nfldb/config.ini
+
+echo "running database updates"
+$HOME/Library/Python/2.7/bin/nfldb-update
