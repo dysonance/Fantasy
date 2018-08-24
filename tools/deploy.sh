@@ -24,7 +24,6 @@ psql -U nfldb nfldb < $SNAPSHOT_DIR/$SNAPSHOT_SQL
 
 # install python packages
 echo "setting up python dependencies"
-pip3 install nfldb
-pip3 install ConfigParser
+pip2 install nfldb
 mkdir -p $HOME/.config/nfldb
 cp /usr/local/share/nfldb/config.ini.sample $HOME/.config/nfldb/config.ini
