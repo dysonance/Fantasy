@@ -1,0 +1,8 @@
+#!/usr/bin/python
+
+
+# put this executable somewhere in your path
+# (e.g. /usr/local/bin)
+
+import nflgame.update_players
+nflgame.update_players.run()
