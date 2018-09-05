@@ -28,5 +28,13 @@ pip2 install --user nfldb
 mkdir -p $HOME/.config/nfldb
 cp $HOME/Library/Python/2.7/share/nfldb/config.ini.sample $HOME/.config/nfldb/config.ini
 
+# one-off database changes to allow updates
+# TODO: figure out where else in the schema the team_id needs to be renamed (if anywhere)
+psql nfldb -c "DELETE FROM team WHERE team_id = 'JAX'"
+psql nfldb -c "DELETE FROM team WHERE team_id = 'LAC'"
+psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('JAX', 'Jacksonville', 'Jaguars')"
+psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('LAC', 'Los Angeles', 'Rams')"
+
+# download and incorporate latest database updates
 echo "running database updates"
 $HOME/Library/Python/2.7/bin/nfldb-update
