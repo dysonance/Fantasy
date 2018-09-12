@@ -28,8 +28,8 @@ psql -U nfldb nfldb < $SNAPSHOT_DIR/$SNAPSHOT_SQL
 
 # install python packages
 echo "setting up python dependencies"
-pip2 install --user --upgrade --force nfldb
-pip2 install --user --upgrade --force nflgame-redux
+pip2 install --user --upgrade --force git+https://github.com/drewsdunne/nfldb
+#pip2 install --user --upgrade --force nflgame-redux
 if [ ! -d "$HOME/.config/nfldb" ]; then
     mkdir -p $HOME/.config/nfldb
 fi
@@ -37,9 +37,12 @@ cp $PYTHON_PACKAGE_PATH/share/nfldb/config.ini.sample $HOME/.config/nfldb/config
 
 # one-off database changes to allow updates
 # TODO: figure out where else in the schema the team_id needs to be renamed (if anywhere)
-psql nfldb -c "UPDATE team SET team_id='JAX' WHERE city='Jacksonville' AND name='Jaguars'"
-psql nfldb -c "UPDATE team SET team_id='LAR' WHERE city='Los Angeles' AND name='Rams'"
-psql nfldb -c "UPDATE team SET team_id='LAC', city='Los Angeles' WHERE city='San Diego' AND name='Chargers'"
+psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('LAC', 'Los Angeles', 'Chargers')"
+psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('LAR', 'Los Angeles', 'Rams')"
+psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('JAX', 'Jacksonville', 'Jaguars')"
+#psql nfldb -c "UPDATE team SET team_id='JAX' WHERE city='Jacksonville' AND name='Jaguars'"
+#psql nfldb -c "UPDATE team SET team_id='LAR' WHERE city='Los Angeles' AND name='Rams'"
+#psql nfldb -c "UPDATE team SET team_id='LAC', city='Los Angeles' WHERE city='San Diego' AND name='Chargers'"
 
 # download and incorporate latest database updates
 echo "running database updates"
