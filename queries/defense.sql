@@ -1,6 +1,6 @@
 with drive_team as (
     select
-        g.season_year,
+        g.season_year as year,
         g.week,
         d.drive_id,
         d.gsis_id,
@@ -15,13 +15,17 @@ with drive_team as (
         d.gsis_id = g.gsis_id
         and g.season_type = 'Regular'
     order by
-        season_year,
+        year,
         week,
         drive_id
 ),
 team_plays as (
     select
-        dt.*,
+        dt.year,
+        dt.week,
+        dt.drive_id,
+        dt.gsis_id,
+        dt.defense_team team,
         ag.play_id,
         ag.passing_att passes,
         ag.passing_cmp completions,
@@ -37,5 +41,4 @@ team_plays as (
         dt.gsis_id = ag.gsis_id
         and dt.drive_id = ag.drive_id
 )
-
 select * from team_plays

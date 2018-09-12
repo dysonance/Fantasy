@@ -25,14 +25,18 @@ passing = stats[stats[:passes] .!= 0, passcols]
 rushing = stats[stats[:rushes] .!= 0, rushcols]
 
 pass = sort(by(passing,
-               [:defense_team, :season_year],
+               [:team, :year, :week],
                df->DataFrame(avg_pass_yards=mean(df[:pass_yards]),
                              sd_pass_yards=std(df[:pass_yards]),
                              pass_score=mean(df[:pass_yards]).*std(df[:pass_yards]))),
-            (:season_year, order(:pass_score, rev=true)))
+            (:year, :week, order(:pass_score, rev=true)))
 rush = sort(by(rushing,
-               [:defense_team, :season_year],
+               [:team, :year, :week],
                df->DataFrame(avg_rush_yards=mean(df[:rush_yards]),
                              sd_rush_yards=std(df[:rush_yards]),
                              rush_score=mean(df[:rush_yards]).*std(df[:rush_yards]))),
-            (:season_year, order(:rush_score, rev=true)))
+            (:year, :week, order(:rush_score, rev=true)))
+
+defense = join(pass, rush, on=[:team,:year,:week])
+defense[:score] = defense[:pass_score] .+ defense[:rush_score]
+defense = sort(defense, (:year, :week, order(:score, rev=true)))
