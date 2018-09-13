@@ -54,5 +54,7 @@ defense = join(defense,
                                 rushrank=competerank(df[:tr]))),
                on=[:team,:year,:week])
 
-defense = sort(defense, (:year, :week, order(:passrank, rev=true), order(:rushrank, rev=true)))
+defense[:score] = -(defense[:tp] .+ defense[:tr])
+
+defense = sort(defense, (:year, :week, order(:score, rev=true)))
 filter(row->row[:year]==2018, defense)
