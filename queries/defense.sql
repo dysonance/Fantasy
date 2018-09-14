@@ -148,7 +148,6 @@ select
     ((d.pt + d.rt) * -1) as score
 from
     defense d
-
 order by
     year desc,
     week desc,
