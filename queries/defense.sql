@@ -4,10 +4,11 @@ with drive_team as (
         g.week,
         d.drive_id,
         d.gsis_id,
+        d.play_count,
         case when g.home_team = d.pos_team then g.away_team else g.home_team end defense_team,
         case when g.home_team = d.pos_team then g.home_team else g.away_team end offense_team,
         g.home_team,
-        g.away_team
+        g.away_team,
     from
         drive d,
         game g
@@ -26,6 +27,7 @@ team_plays as (
         dt.drive_id,
         dt.gsis_id,
         dt.defense_team team,
+        dt.play_count,
         ag.play_id,
         ag.passing_att passes,
         ag.passing_cmp completions,
