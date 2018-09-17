@@ -21,7 +21,7 @@ rankings = sort(join(defense[[:year,:week,:team]],
                    [:year, :week],
                    df->DataFrame(team=df[:team],
                                  passrank=competerank(df[:pt]),
-                                 rushrank=competerank(df[:pt]),
+                                 rushrank=competerank(df[:rt]),
                                  rank=competerank(-df[:score]))),
                 on=[:year,:week,:team]),
                 (order(:year, rev=true), order(:week, rev=true), order(:rank, rev=false)))

@@ -143,7 +143,9 @@ select
     d.year,
     d.week,
     d.team,
+    d.npp,
     d.pt,
+    d.nrp,
     d.rt,
     ((d.pt + d.rt) * -1) as score
 from
