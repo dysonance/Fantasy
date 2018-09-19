@@ -67,9 +67,9 @@ rb_stats as (
         sum(rb.receptions) as catches,
         sum(rb.runyds) as runyds,
         sum(rb.recyds) as recyds,
-        round(sum(rb.runyds)::numeric/(case when sum(rb.rushes)=0 then 1 else sum(rb.rushes) end), 2) as ypc,
-        round(sum(rb.receptions)::numeric/(case when sum(rb.targets)=0 then 1 else sum(rb.targets) end), 2) as rpt,
-        round(sum(rb.recyds)::numeric/(case when sum(rb.receptions)=0 then 1 else sum(rb.receptions) end), 2) as ypr
+        round(sum(rb.runyds)::numeric/(case when sum(rb.rushes)=0 then 1 else sum(rb.rushes) end), 2)::float as ypc,
+        round(sum(rb.receptions)::numeric/(case when sum(rb.targets)=0 then 1 else sum(rb.targets) end), 2)::float as rpt,
+        round(sum(rb.recyds)::numeric/(case when sum(rb.receptions)=0 then 1 else sum(rb.receptions) end), 2)::float as ypr
     from
         rb_plays rb
     group by
@@ -81,8 +81,8 @@ rb_stats as (
 
 select
     rb.*,
-    round((rb.carries)::numeric / ps.rushes, 2) as cpr,
-    round((rb.targets)::numeric / ps.passes, 2) as tpp
+    round((rb.carries)::numeric / ps.rushes, 2)::float as cpr,
+    round((rb.targets)::numeric / ps.passes, 2)::float as tpp
 from
     rb_stats rb,
     play_stats ps
