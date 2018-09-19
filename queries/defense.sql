@@ -36,7 +36,9 @@ team_plays as (
         ag.passing_tds pass_touchdowns,
         ag.rushing_att rushes,
         ag.rushing_yds rush_yards,
-        ag.rushing_tds rush_touchdowns
+        ag.rushing_tds rush_touchdowns,
+        ag.defense_int,
+        ag.defense_sk
     from
         drive_team dt,
         agg_play ag
@@ -49,7 +51,7 @@ passavg as (
     select
         year,
         week,
-        avg(pass_yards)
+        avg(pass_yards) as avg_yds
     from
         team_plays
     where
@@ -63,7 +65,7 @@ rushavg as (
     select
         year,
         week,
-        avg(rush_yards)
+        avg(rush_yards) as avg_yds
     from
         team_plays
     where
@@ -79,14 +81,16 @@ passing as (
         tp.week,
         tp.team,
         count(tp.play_count) as plays,
+        sum(tp.defense_sk)::float / count(tp.play_count) as spp,
+        sum(tp.defense_int)::float / count(tp.play_count) as ipp,
         avg(tp.pass_yards) as team_avg,
         stddev(tp.pass_yards) as team_dev,
-        avg(pa.avg) as league_avg
+        avg(pa.avg_yds) as league_avg
     from
         team_plays tp
         left join passavg pa on tp.year=pa.year and tp.week=pa.week
     where
-        tp.passes != 0
+        (tp.passes != 0 or tp.defense_sk != 0)
         and tp.year = pa.year
         and tp.week = pa.week
     group by
@@ -103,7 +107,7 @@ rushing as (
         count(tp.play_count) as plays,
         avg(tp.rush_yards) as team_avg,
         stddev(tp.rush_yards) as team_dev,
-        avg(ra.avg) as league_avg
+        avg(ra.avg_yds) as league_avg
     from
         team_plays tp
         left join rushavg ra on tp.year=ra.year and tp.week=ra.week
@@ -121,14 +125,16 @@ defense as (
         p.week,
         p.team,
         p.plays as npp,
-        r.plays as nrp,
+        p.spp,
+        p.ipp,
         p.team_avg as pyta,
-        r.team_avg as ryta,
-        --  p.team_dev as pytd,
-        --  r.team_dev as rytd,
+        p.team_dev as pytd,
         p.league_avg as pyla,
-        r.league_avg as ryla,
         (sqrt(p.plays) * (p.team_avg - p.league_avg) / p.team_dev) as pt,
+        r.plays as nrp,
+        r.team_avg as ryta,
+        r.team_dev as rytd,
+        r.league_avg as ryla,
         (sqrt(r.plays) * (r.team_avg - r.league_avg) / r.team_dev) as rt
     from
         passing p,
@@ -144,6 +150,8 @@ select
     d.week,
     d.team,
     d.npp,
+    d.spp,
+    d.ipp,
     d.pt,
     d.nrp,
     d.rt,
