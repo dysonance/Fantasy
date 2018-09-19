@@ -1,5 +1,6 @@
 with rb_plays as (
     select
+        g.gsis_id,
         g.season_year as year,
         g.week,
         pp.drive_id,
@@ -23,6 +24,7 @@ with rb_plays as (
         and p.status = 'Active'
         and g.season_type = 'Regular'
 ),
+
 rb_stats as (
     select
         rb.year,
@@ -30,13 +32,13 @@ rb_stats as (
         rb.team,
         rb.name,
         sum(rb.rushes) as carries,
-        sum(rb.runyds) as runyds,
-        sum(rb.runyds)::float/(case when sum(rb.rushes)=0 then 1 else sum(rb.rushes) end) as ypc,
         sum(rb.targets) as targets,
         sum(rb.receptions) as catches,
+        sum(rb.runyds) as runyds,
         sum(rb.recyds) as recyds,
-        sum(rb.receptions)::float/(case when sum(rb.targets)=0 then 1 else sum(rb.targets) end) as rpt,
-        sum(rb.recyds)::float/(case when sum(rb.receptions)=0 then 1 else sum(rb.receptions) end) as ypr
+        round(sum(rb.runyds)::numeric/(case when sum(rb.rushes)=0 then 1 else sum(rb.rushes) end), 2) as ypc,
+        round(sum(rb.receptions)::numeric/(case when sum(rb.targets)=0 then 1 else sum(rb.targets) end), 2) as rpt,
+        round(sum(rb.recyds)::numeric/(case when sum(rb.receptions)=0 then 1 else sum(rb.receptions) end), 2) as ypr
     from
         rb_plays rb
     group by
@@ -50,13 +52,10 @@ select
     rb.*
 from
     rb_stats rb
-where
-    rb.week = 1
-    and rb.year = 2018
 order by
     rb.year desc,
+    rb.week desc,
     rb.carries desc,
     rb.targets desc,
-    rb.week desc,
     rb.team
-limit 50
+--  limit 50
