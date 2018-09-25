@@ -19,7 +19,7 @@ psql -c "CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;" nfldb
 if [ ! -f "$SNAPSHOT_DIR/$SNAPSHOT_SQL" ]; then
     echo "downloading database snapshot"
     wget $SNAPSHOT_URL -O $SNAPSHOT_DIR/$SNAPSHOT_ZIP -o log/download.log
-    unzip $SNAPSHOT_LOCAL -d $SNAPSHOT_DIR
+    unzip $SNAPSHOT_DIR/$SNAPSHOT_ZIP -d $SNAPSHOT_DIR
 fi
 
 # import the database snapshot to local database
