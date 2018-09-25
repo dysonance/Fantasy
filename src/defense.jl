@@ -1,11 +1,13 @@
 using LibPQ, DataStreams, DataFrames, Statistics, StatsBase
 
-connection = LibPQ.Connection("dbname=nfldb")
+CONNECTION = LibPQ.Connection("dbname=nfldb")
+YEAR = 2018
+WEEK = 3
 
 query = read("queries/defense.sql", String)
 
-function run_query(connection, query)
-    result = execute(connection, query)
+function run_query(CONNECTION, query)
+    result = execute(CONNECTION, query)
     dataframe_stream = Data.stream!(result, DataFrame)
     data = DataFrame()
     for (j, field) in enumerate(dataframe_stream.header)
@@ -14,7 +16,8 @@ function run_query(connection, query)
     return data
 end
 
-defense = run_query(connection, query)
+defense = run_query(CONNECTION, query)
+defense[:score] = -1 .* (defense[:pt] .+ defense[:rt])
 
 rankings = sort(join(defense[[:year,:week,:team]],
                 by(defense,
@@ -26,6 +29,4 @@ rankings = sort(join(defense[[:year,:week,:team]],
                 on=[:year,:week,:team]),
                 (order(:year, rev=true), order(:week, rev=true), order(:rank, rev=false)))
 
-filter(row->row[:year]==2018, rankings)
-
-# TODO: analyze autocorrelation of ranks
+filter(row->row[:year]==YEAR && row[:week]==WEEK, rankings)

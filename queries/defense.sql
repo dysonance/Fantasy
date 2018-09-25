@@ -154,11 +154,10 @@ select
     d.ipp,
     d.pt,
     d.nrp,
-    d.rt,
-    ((d.pt + d.rt) * -1) as score
+    d.rt
 from
     defense d
 order by
     year desc,
     week desc,
-    score desc
+    team
