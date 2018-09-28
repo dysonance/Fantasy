@@ -94,10 +94,11 @@ where
     gt.year = rb.year
     and gt.week = rb.week
     and gt.offense_team = rb.team
+    and rb.carries > 5
 order by
     rb.year desc,
     rb.week desc,
-    rb.carries desc,
-    rb.targets desc,
+    cpr desc,
+    tpp desc,
     rb.team
-limit 50
+--  limit 50
