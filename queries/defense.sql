@@ -5,8 +5,8 @@ with drive_team as (
         d.drive_id,
         d.gsis_id,
         d.play_count,
-        case when g.home_team = d.pos_team then g.away_team else g.home_team end defense_team,
-        case when g.home_team = d.pos_team then g.home_team else g.away_team end offense_team,
+        defense_team(d.gsis_id, d.drive_id) as defense_team,
+        offense_team(d.gsis_id, d.drive_id) as offense_team,
         g.home_team,
         g.away_team
     from
