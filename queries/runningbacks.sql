@@ -41,6 +41,7 @@ rb_plays as (
         pp.play_id,
         p.full_name as name,
         pp.team,
+        p.status,
         pp.receiving_tar as targets,
         pp.receiving_rec as receptions,
         pp.receiving_yds as recyds,
@@ -55,7 +56,6 @@ rb_plays as (
         and pp.gsis_id = g.gsis_id
         and p.position = 'RB'
         and p.team != 'UNK'
-        and p.status = 'Active'
         and g.season_type = 'Regular'
 ),
 
@@ -65,6 +65,7 @@ rb_stats as (
         rb.week,
         rb.team,
         rb.name,
+        rb.status,
         sum(rb.rushes) as carries,
         sum(rb.targets) as targets,
         sum(rb.receptions) as catches,
@@ -79,7 +80,8 @@ rb_stats as (
         rb.year,
         rb.week,
         rb.team,
-        rb.name
+        rb.name,
+        rb.status
 )
 
 select
@@ -94,11 +96,11 @@ where
     gt.year = rb.year
     and gt.week = rb.week
     and gt.offense_team = rb.team
-    and rb.carries > 5
+    and rb.carries > 1
 order by
     rb.year desc,
     rb.week desc,
+    rb.team,
     cpr desc,
-    tpp desc,
-    rb.team
+    tpp desc
 --  limit 50
