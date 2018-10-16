@@ -65,7 +65,6 @@ rb_stats as (
         rb.week,
         rb.team,
         rb.name,
-        rb.status,
         sum(rb.rushes) as carries,
         sum(rb.targets) as targets,
         sum(rb.receptions) as catches,
@@ -80,8 +79,7 @@ rb_stats as (
         rb.year,
         rb.week,
         rb.team,
-        rb.name,
-        rb.status
+        rb.name
 )
 
 select

@@ -19,5 +19,5 @@ rb = runningbacks[year==2018]
 
 X = rb[,
        .(runload=mean(cpr), ypc=mean(ypc), passload=mean(tpp), rpt=mean(rpt), ypr=mean(ypr)),
-       by=.(year,team,name,status)][order(runload,decreasing=TRUE)][order(team)]
+       by=.(year,team,name)][order(runload,decreasing=TRUE)][order(team)]
 X
