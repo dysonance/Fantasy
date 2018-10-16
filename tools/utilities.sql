@@ -1,6 +1,4 @@
 drop function if exists offense_team;
-drop function if exists defense_team;
-
 create function offense_team (gsis_id gameid, drive_id int)
     returns character varying (3)
 as $$
@@ -21,6 +19,7 @@ where
 $$
 language sql;
 
+drop function if exists defense_team;
 create function defense_team (gsis_id gameid, drive_id int)
     returns character varying (3)
 as $$
@@ -40,3 +39,18 @@ where
     and d.drive_id = $2
 $$
 language sql;
+
+drop function if exists is_offensive_position;
+create function is_offensive_position (pos player_pos)
+    returns boolean
+as $$
+select
+    case when (pos = 'QB'
+            or pos = 'RB'
+            or pos = 'WR'
+            or pos = 'TE') then
+        true
+    else
+        false
+    end
+$$ language sql;
