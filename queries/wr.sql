@@ -1,32 +1,33 @@
 with wr_plays as (
     select
+        pp.gsis_id,
+        pp.drive_id,
         pp.play_id,
-        g.season_year as yr,
-        g.week as wk,
+        g.season_year as year,
+        g.week,
+        play.down,
+        play.yardline,
+        play.yards_to_go as togo,
         p.full_name as name,
         pp.team,
-        p.status,
-        sum(pp.receiving_tar) as targets,
-        sum(pp.receiving_rec) as catches,
-        sum(pp.receiving_yds) as yds,
-        sum(pp.receiving_yac_yds) as yac
+        pp.receiving_tar as targets,
+        pp.receiving_rec as catches,
+        pp.receiving_yds as yds,
+        pp.receiving_yac_yds as yac
     from
         play_player pp,
         player p,
-        game g
+        game g,
+        play
     where
         p.position = 'WR'
+        and pp.gsis_id = play.gsis_id
+        and pp.drive_id = play.drive_id
+        and pp.play_id = play.play_id
         and pp.gsis_id = g.gsis_id
         and pp.player_id = p.player_id
         and (g.season_type = 'Regular'
             or g.season_type = 'Postseason')
-    group by
-        pp.play_id,
-        g.season_year,
-        g.week,
-        p.full_name,
-        pp.team,
-        p.status
     order by
         g.season_year desc,
         g.week desc,
@@ -36,29 +37,27 @@ with wr_plays as (
         yac desc
 )
 
-select
-    wrp.yr,
-    wrp.wk,
-    wrp.name,
-    wrp.team,
-    wrp.status,
-    sum(wrp.targets) as targets,
-    sum(wrp.catches) as catches,
-    round((sum(wrp.catches)::float / (case when sum(wrp.targets) = 0 then 1.0 else sum(wrp.targets) end))::numeric, 2) as catchrate,
-    sum(wrp.yds) as yds,
-    sum(wrp.yac) as yac
-from
-    wr_plays wrp
-group by
-    wrp.yr,
-    wrp.wk,
-    wrp.name,
-    wrp.team,
-    wrp.status
-order by
-    wrp.yr desc,
-    wrp.wk desc,
-    targets desc,
-    catchrate desc
+select * from wr_plays;
 
---  limit 50
+--  select
+--      wrp.year,
+--      wrp.week,
+--      wrp.name,
+--      wrp.team,
+--      sum(wrp.targets) as targets,
+--      sum(wrp.catches) as catches,
+--      round((sum(wrp.catches)::float / sum(wrp.targets + 1e-16))::numeric, 2) as catchrate,
+--      sum(wrp.yds) as yds,
+--      sum(wrp.yac) as yac
+--  from
+--      wr_plays wrp
+--  group by
+--      wrp.year,
+--      wrp.week,
+--      wrp.name,
+--      wrp.team,
+--  order by
+--      wrp.year desc,
+--      wrp.week desc,
+--      targets desc,
+--      catchrate desc
