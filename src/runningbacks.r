@@ -1,18 +1,6 @@
-library(data.table)
-library(RPostgreSQL)
+source("tools/connect.r")
 
-RunQuery = function(connection, query){
-  result = dbSendQuery(connection, query)
-  out = fetch(result, n=-1)
-  dbClearResult(result)
-  return(as.data.table(out))
-}
-
-if (!exists("CONNECTION")){
-  CONNECTION = dbConnect(PostgreSQL(), user="nfldb", dbname="nfldb", host="localhost")
-}
-
-query = paste(readLines("queries/runningbacks.sql"), collapse=' ')
+query = ReadQuery("queries/runningbacks.sql")
 rb_plays = RunQuery(CONNECTION, query)
 rb_plays[,yardline:=as.integer(gsub('[()]','',yardline))+50]
 
