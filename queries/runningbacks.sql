@@ -39,9 +39,11 @@ rb_plays as (
         g.week,
         pp.drive_id,
         pp.play_id,
+        play.down,
+        play.yardline,
+        play.yards_to_go as togo,
         p.full_name as name,
         pp.team,
-        p.status,
         pp.receiving_tar as targets,
         pp.receiving_rec as receptions,
         pp.receiving_yds as recyds,
@@ -50,55 +52,61 @@ rb_plays as (
     from
         play_player pp,
         player p,
-        game g
+        game g,
+        play
     where
         pp.player_id = p.player_id
         and pp.gsis_id = g.gsis_id
         and p.position = 'RB'
         and p.team != 'UNK'
         and g.season_type = 'Regular'
-),
-
-rb_stats as (
-    select
-        rb.year,
-        rb.week,
-        rb.team,
-        rb.name,
-        sum(rb.rushes) as carries,
-        sum(rb.targets) as targets,
-        sum(rb.receptions) as catches,
-        sum(rb.runyds) as runyds,
-        sum(rb.recyds) as recyds,
-        round(sum(rb.runyds)::numeric/(case when sum(rb.rushes)=0 then 1 else sum(rb.rushes) end), 2)::float as ypc,
-        round(sum(rb.receptions)::numeric/(case when sum(rb.targets)=0 then 1 else sum(rb.targets) end), 2)::float as rpt,
-        round(sum(rb.recyds)::numeric/(case when sum(rb.receptions)=0 then 1 else sum(rb.receptions) end), 2)::float as ypr
-    from
-        rb_plays rb
-    group by
-        rb.year,
-        rb.week,
-        rb.team,
-        rb.name
+        and play.play_id = pp.play_id
+        and play.drive_id = pp.drive_id
+        and play.gsis_id = pp.gsis_id
 )
 
-select
-    rb.*,
-    round((rb.carries)::numeric / gt.rushes, 2)::float as cpr,
-    round((rb.targets)::numeric / gt.passes, 2)::float as tpp,
-    gt.offense_ptdiff as tsd
-from
-    rb_stats rb,
-    game_team gt
-where
-    gt.year = rb.year
-    and gt.week = rb.week
-    and gt.offense_team = rb.team
-    and rb.carries > 1
-order by
-    rb.year desc,
-    rb.week desc,
-    rb.team,
-    cpr desc,
-    tpp desc
---  limit 50
+select * from rb_plays;
+
+--  rb_stats as (
+--      select
+--          rb.year,
+--          rb.week,
+--          rb.team,
+--          rb.name,
+--          sum(rb.rushes) as carries,
+--          sum(rb.targets) as targets,
+--          sum(rb.receptions) as catches,
+--          sum(rb.runyds) as runyds,
+--          sum(rb.recyds) as recyds,
+--          round(sum(rb.runyds)::numeric/(case when sum(rb.rushes)=0 then 1 else sum(rb.rushes) end), 2)::float as ypc,
+--          round(sum(rb.receptions)::numeric/(case when sum(rb.targets)=0 then 1 else sum(rb.targets) end), 2)::float as rpt,
+--          round(sum(rb.recyds)::numeric/(case when sum(rb.receptions)=0 then 1 else sum(rb.receptions) end), 2)::float as ypr
+--      from
+--          rb_plays rb
+--      group by
+--          rb.year,
+--          rb.week,
+--          rb.team,
+--          rb.name
+--  )
+--
+--  select
+--      rb.*,
+--      round((rb.carries)::numeric / gt.rushes, 2)::float as cpr,
+--      round((rb.targets)::numeric / gt.passes, 2)::float as tpp,
+--      gt.offense_ptdiff as tsd
+--  from
+--      rb_stats rb,
+--      game_team gt
+--  where
+--      gt.year = rb.year
+--      and gt.week = rb.week
+--      and gt.offense_team = rb.team
+--      and rb.carries > 1
+--  order by
+--      rb.year desc,
+--      rb.week desc,
+--      rb.team,
+--      cpr desc,
+--      tpp desc
+--  --  limit 50
