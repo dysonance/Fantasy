@@ -30,10 +30,10 @@ create materialized view fantasy_points as (
             pp.player_id
     )
     select
-        p.full_name,
+        p.full_name as name,
         p.position,
         p.team,
-        g.season_year,
+        g.season_year as year,
         g.week,
         fs.gsis_id,
         fs.points
