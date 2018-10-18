@@ -59,7 +59,7 @@ WR
 
 PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
   if (!is.null(outfile)){
-    png(outfile, width=11, height=8.5, units='in')
+    png(outfile, width=11, height=8.5, units='in', res=600)
   }
   par(mfrow=c(1,2), cex=0.5, family='mono', mar=c(3,3,3,3), mgp=c(1.5,0.5,0))
   # tight end value rankings
@@ -74,5 +74,9 @@ PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
   box(bty='l')
   grid(lty=1, nx=NULL, ny=0, col='#00000020')
   title(main="Wide Receiver Rankings", xlab="Value")
+  if (!is.null(outfile)){
+    dev.off()
+    PlotCatcherValues(WR, TE, NULL)
+  }
 }
-PlotCatcherValues(WR, TE, NULL)
+PlotCatcherValues(WR, TE, "figures/receivers.png")
