@@ -14,12 +14,16 @@ TB = tb[,
           pct_run=sum(n_run)/sum(n_plays)),
         by=.(offense,year)]
 
+options(warn=-1)
 te = RunQuery(CONNECTION, ReadQuery("queries/tight_ends.sql"))
+options(warn=0)
 te[,yardline:=as.integer(gsub('[()]','',yardline))+50]
 te = merge(te, tb[,.(offense,year,week,n_plays,n_pass)], by.x=c('team','year','week'), by.y=c('offense','year','week'))
 te[,pct_tgt:=sum(targets)/mean(n_pass), by=.(name,year,week)]
 
+options(warn=-1)
 wr = RunQuery(CONNECTION, ReadQuery("queries/receivers.sql"))
+options(warn=0)
 wr[,yardline:=as.integer(gsub('[()]','',yardline))+50]
 wr = merge(wr, tb[,.(offense,year,week,n_plays,n_pass)], by.x=c('team','year','week'), by.y=c('offense','year','week'))
 wr[,pct_tgt:=sum(targets)/mean(n_pass), by=.(name,year,week)]
@@ -35,8 +39,8 @@ TE = te[,
          vol=sd(yds),
          relyds=mean(yds/togo,na.rm=T)),
        by=.(year,team,name)][year==YEAR]
-TE = merge(TE, TB[,.(offense,year,pct_pass,n_plays)], by.x=c('team','year'), by.y=c('offense','year'))
-TE[,score:=log(targets*pct_pass*catchrate*yds/catches*relyds/vol)*fp[year==YEAR&position=='TE',mean(points)]]
+TE = merge(TE, TB[,.(offense,year,pct_pass)], by.x=c('team','year'), by.y=c('offense','year'))
+TE[,score:=log(targets*pct_pass*tgt_pct*catchrate*yds/catches*relyds/vol)*fp[year==YEAR&position=='TE',mean(points)]]
 TE = TE[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1]
 TE
 
@@ -52,14 +56,14 @@ WR = wr[,
          vol=sd(yds),
          relyds=mean(yds/togo,na.rm=T)),
        by=.(year,team,name)][year==YEAR]
-WR = merge(WR, TB[,.(offense,year,pct_pass,n_plays)], by.x=c('team','year'), by.y=c('offense','year'))
+WR = merge(WR, TB[,.(offense,year,pct_pass)], by.x=c('team','year'), by.y=c('offense','year'))
 WR[,score:=log(targets*pct_pass*tgt_pct*catchrate*yds/catches*relyds/vol)*fp[year==YEAR&position=='WR',mean(points)]]
 WR = WR[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1]
 WR
 
 PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
   if (!is.null(outfile)){
-    png(outfile, width=11, height=8.5, units='in')
+    png(outfile, width=11, height=8.5, units='in', res=600)
   }
   par(mfrow=c(1,2), cex=0.5, family='mono', mar=c(3,3,3,3), mgp=c(1.5,0.5,0))
   # tight end value rankings
@@ -74,5 +78,9 @@ PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
   box(bty='l')
   grid(lty=1, nx=NULL, ny=0, col='#00000020')
   title(main="Wide Receiver Rankings", xlab="Value")
+  if (!is.null(outfile)){
+    dev.off()
+    PlotCatcherValues(WR, TE, NULL)
+  }
 }
-PlotCatcherValues(WR, TE, NULL)
+PlotCatcherValues(WR, TE, "figures/receivers.png")

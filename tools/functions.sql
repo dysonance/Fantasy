@@ -1,5 +1,4 @@
-drop function if exists offense_team;
-create function offense_team (gsis_id gameid, drive_id int)
+create or replace function offense_team (gsis_id gameid, drive_id int)
     returns character varying (3)
 as $$
 select
@@ -19,8 +18,7 @@ where
 $$
 language sql;
 
-drop function if exists defense_team;
-create function defense_team (gsis_id gameid, drive_id int)
+create or replace function defense_team (gsis_id gameid, drive_id int)
     returns character varying (3)
 as $$
 select
@@ -40,8 +38,7 @@ where
 $$
 language sql;
 
-drop function if exists is_offensive_position;
-create function is_offensive_position (pos player_pos)
+create or replace function is_offensive_position (pos player_pos)
     returns boolean
 as $$
 select
