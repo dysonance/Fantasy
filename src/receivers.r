@@ -1,7 +1,7 @@
 source("tools/connect.r")
 
 YEAR = 2018
-MIN_REL_TGT_PCT = 0.75
+MIN_REL_TGT_PCT = 2/3
 
 fp = RunQuery(CONNECTION, "select * from fantasy_points")
 
@@ -41,7 +41,7 @@ TE = te[,
        by=.(year,team,name)][year==YEAR]
 TE = merge(TE, TB[,.(offense,year,pct_pass)], by.x=c('team','year'), by.y=c('offense','year'))
 TE[,score:=log(targets*pct_pass*tgt_pct*catchrate*yds/catches*relyds/vol)*fp[year==YEAR&position=='TE',mean(points)]]
-TE = TE[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1]
+TE = TE[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1][score>0]
 TE
 
 
@@ -58,7 +58,7 @@ WR = wr[,
        by=.(year,team,name)][year==YEAR]
 WR = merge(WR, TB[,.(offense,year,pct_pass)], by.x=c('team','year'), by.y=c('offense','year'))
 WR[,score:=log(targets*pct_pass*tgt_pct*catchrate*yds/catches*relyds/vol)*fp[year==YEAR&position=='WR',mean(points)]]
-WR = WR[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1]
+WR = WR[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1][score>0]
 WR
 
 PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
