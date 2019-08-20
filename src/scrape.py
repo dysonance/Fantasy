@@ -2,13 +2,14 @@
 
 import pandas as pd
 import numpy as np
-
+import os
 import logging
 import requests
 from bs4 import BeautifulSoup
 
 DOMAIN = "https://www.footballoutsiders.com/stats"
-PAGES = ["ol", "dl", "teamoff", "teamdef"]
+PAGES = ["ol", "dl", "teamoff", "teamdef", "teamst", "rb", "qb", "wr", "te"]
+DATA_PATH = "data/outsiders/"
 
 
 def format_text(s):
@@ -83,17 +84,20 @@ def fetch_table_data(page="{}/stats/ol".format(DOMAIN), save_location=None):
     if save_location is None:
         save_location = "data/{}.csv".format(page.split("/")[-1])
     logging.info("saving resulting dataset to {}".format(save_location))
+    if not os.path.exists(os.path.split(save_location)[0]):
+        logging.debug("creating nonexistent output directory")
+        os.makedirs(os.path.split(save_location)[0])
     dataframe.to_csv(save_location, index=False)
     return dataframe
 
 
-def scrape_outsiders(domain=DOMAIN, pages=PAGES):
+def scrape_outsiders(domain=DOMAIN, pages=PAGES, data_path=DATA_PATH):
     data = {}
     for page in pages:
         url = "{}/{}".format(domain, page)
         logging.info("attempting to scrape tabular data from {}".format(url))
         try:
-            data[page] = fetch_table_data(page=url)
-        except:
-            logging.error("failed to fetch tabular data from {}".format(url))
+            data[page] = fetch_table_data(page=url, save_location="{}/{}.csv".format(data_path, page))
+        except Exception as error:
+            logging.error("failed to fetch tabular data from {}:\n{}".format(url, error))
     return data
