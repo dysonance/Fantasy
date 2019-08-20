@@ -3,7 +3,7 @@
 PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
 
 # project root directory
-PROJECT="$HOME/gitbase/fantasy"
+PROJECT="$(pwd)"
 SNAPSHOT_DIR="$PROJECT/data"
 SNAPSHOT_SQL="nfldb.sql"
 SNAPSHOT_ZIP="$SNAPSHOT_SQL.zip"
@@ -28,8 +28,12 @@ psql -U nfldb nfldb < $SNAPSHOT_DIR/$SNAPSHOT_SQL
 
 # install python packages
 echo "setting up python dependencies"
-pip2 install --user --upgrade --force git+https://github.com/drewsdunne/nfldb
-#pip2 install --user --upgrade --force nflgame-redux
+pip2 install --user --upgrade nflgame-redux  # version required for python3 support
+pip2 install --user --upgrade ipython pandas numpy matplotlib scipy  # python research libraries
+
+export PATH=$PATH:$HOME/Library/Python/2.7/bin  # put in bash profile to reuse
+
+# setup nfldb configuration environment
 if [ ! -d "$HOME/.config/nfldb" ]; then
     mkdir -p $HOME/.config/nfldb
 fi
@@ -40,9 +44,6 @@ cp $PYTHON_PACKAGE_PATH/share/nfldb/config.ini.sample $HOME/.config/nfldb/config
 psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('LAC', 'Los Angeles', 'Chargers')"
 psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('LAR', 'Los Angeles', 'Rams')"
 psql nfldb -c "INSERT INTO team (team_id, city, Name) VALUES ('JAX', 'Jacksonville', 'Jaguars')"
-#psql nfldb -c "UPDATE team SET team_id='JAX' WHERE city='Jacksonville' AND name='Jaguars'"
-#psql nfldb -c "UPDATE team SET team_id='LAR' WHERE city='Los Angeles' AND name='Rams'"
-#psql nfldb -c "UPDATE team SET team_id='LAC', city='Los Angeles' WHERE city='San Diego' AND name='Chargers'"
 
 # download and incorporate latest database updates
 echo "running database updates"
