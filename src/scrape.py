@@ -40,13 +40,19 @@ def collect_columns(table):
     return columns
 
 
+# TODO: infer data types of columns
 def collect_data(table):
     logging.info("collecting table data contents")
     body = table.findChild("tbody")
-    rows = body.findChildren("tr")
+    if body is not None:
+        rows = body.findChildren("tr")
+    else:
+        rows = table.findChildren("tr")
     data = []
     for i, row in enumerate(rows):
         cells = []
+        if len(row.findChildren("th")) > len(row.findChildren("td")):
+            continue
         for j, cell in enumerate(row.children):
             try:
                 cells.append(format_text(cell.text))
