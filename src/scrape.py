@@ -32,7 +32,6 @@ def collect_columns(table):
     for i, field in enumerate(header.children):
         try:
             column = format_text(field.text)
-            print(column)
             columns.append(column)
         except:
             continue
