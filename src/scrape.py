@@ -7,7 +7,8 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
-DOMAIN = "https://www.footballoutsiders.com"
+DOMAIN = "https://www.footballoutsiders.com/stats"
+PAGES = ["ol", "dl", "teamoff", "teamdef"]
 
 
 def format_text(s):
@@ -75,9 +76,24 @@ def extract_table(response):
     return dataframe
 
 
-def fetch_table_data(page="{}/stats/ol".format(DOMAIN), save_location="data/oline.csv"):
+def fetch_table_data(page="{}/stats/ol".format(DOMAIN), save_location=None):
     logging.info("fetching response from request to page {}".format(page))
     response = requests.get(page)
     dataframe = extract_table(response)
+    if save_location is None:
+        save_location = "data/{}.csv".format(page.split("/")[-1])
+    logging.info("saving resulting dataset to {}".format(save_location))
     dataframe.to_csv(save_location, index=False)
     return dataframe
+
+
+def scrape_outsiders(domain=DOMAIN, pages=PAGES):
+    data = {}
+    for page in pages:
+        url = "{}/{}".format(domain, page)
+        logging.info("attempting to scrape tabular data from {}".format(url))
+        try:
+            data[page] = fetch_table_data(page=url)
+        except:
+            logging.error("failed to fetch tabular data from {}".format(url))
+    return data
