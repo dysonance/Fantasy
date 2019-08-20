@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import os
+import re
 import logging
 import requests
 from bs4 import BeautifulSoup
@@ -79,22 +80,49 @@ def extract_table(response):
         len(columns), n_cols
     )
     # construct dataframe and return
-    dataframe = pd.DataFrame(np.asarray(data), columns=columns)
-    return dataframe
+    df = pd.DataFrame(np.asarray(data), columns=columns)
+    return auto_convert(df)
 
 
 def fetch_table_data(page="{}/stats/ol".format(DOMAIN), save_location=None):
     logging.info("fetching response from request to page {}".format(page))
     response = requests.get(page)
-    dataframe = extract_table(response)
+    df = extract_table(response)
     if save_location is None:
         save_location = "data/{}.csv".format(page.split("/")[-1])
     logging.info("saving resulting dataset to {}".format(save_location))
     if not os.path.exists(os.path.split(save_location)[0]):
         logging.debug("creating nonexistent output directory")
         os.makedirs(os.path.split(save_location)[0])
-    dataframe.to_csv(save_location, index=False)
-    return dataframe
+    df.to_csv(save_location, index=False)
+    return df
+
+
+# utility function for matching all strings in an array to the same regex
+def all_match(pattern, values):
+    return sum([bool(re.search(pattern, s)) for s in values]) == len(values)
+
+
+def auto_convert(df: pd.DataFrame) -> pd.DataFrame:
+    column_types = df.apply(lambda x: pd.api.types.infer_dtype(x, skipna=True), axis=0)
+    for j, column in enumerate(df):
+        if column_types[j] == "string":
+            values = df.iloc[:, j].values
+            # skip ratios
+            if all_match(r"\d+/\d+", values):
+                continue
+            # percentage conversions
+            if all_match(r"-?\d*[,\.]?\d+%", values):
+                df.iloc[:, j] = [float(s.replace("%", "").replace(",", "")) / 100 for s in values]
+            # float conversions
+            elif all_match(r"-?\d*[,\.]?\d+", values):
+                df.iloc[:, j] = [float(s.replace(",", "")) for s in values]
+            # integer conversions
+            elif all_match(r"-?\d+", values):
+                df.iloc[:, j] = [int(s) for s in values]
+        else:
+            continue
+    return df
 
 
 def scrape_outsiders(domain=DOMAIN, pages=PAGES, data_path=DATA_PATH):
