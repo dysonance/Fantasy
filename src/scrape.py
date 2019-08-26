@@ -12,6 +12,9 @@ DOMAIN = "https://www.footballoutsiders.com/stats"
 PAGES = ["ol", "dl", "teamoff", "teamdef", "teamst", "rb", "qb", "wr", "te"]
 DATA_PATH = "data/outsiders/"
 
+# TODO: make script argument
+YEAR = 2018
+
 
 def format_text(s):
     s = s.replace("\n", " ").replace("\t", " ")
@@ -41,7 +44,6 @@ def collect_columns(table):
     return columns
 
 
-# TODO: infer data types of columns
 def collect_data(table):
     logging.info("collecting table data contents")
     body = table.findChild("tbody")
@@ -103,7 +105,7 @@ def all_match(pattern, values):
     return sum([bool(re.search(pattern, s)) for s in values]) == len(values)
 
 
-def auto_convert(df: pd.DataFrame) -> pd.DataFrame:
+def auto_convert(df):
     column_types = df.apply(lambda x: pd.api.types.infer_dtype(x, skipna=True), axis=0)
     for j, column in enumerate(df):
         if column_types[j] == "string":
@@ -125,13 +127,17 @@ def auto_convert(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scrape_outsiders(domain=DOMAIN, pages=PAGES, data_path=DATA_PATH):
+def scrape_outsiders(domain=DOMAIN, pages=PAGES, year=YEAR, data_path=DATA_PATH):
     data = {}
     for page in pages:
-        url = "{}/{}".format(domain, page)
+        url = "{}/{}/{}".format(domain, page, year)
         logging.info("attempting to scrape tabular data from {}".format(url))
         try:
-            data[page] = fetch_table_data(page=url, save_location="{}/{}.csv".format(data_path, page))
+            data[page] = fetch_table_data(page=url, save_location="{}/{}/{}.csv".format(data_path, year, page))
         except Exception as error:
             logging.error("failed to fetch tabular data from {}:\n{}".format(url, error))
     return data
+
+
+if __name__ == "__main__":
+    scrape_outsiders()

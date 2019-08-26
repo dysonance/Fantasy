@@ -27,11 +27,11 @@ echo "importing snapshot download into local database"
 psql -U nfldb nfldb < $SNAPSHOT_DIR/$SNAPSHOT_SQL
 
 # install python packages
+# NOTE: binaries install to ~/Library/Python/2.7/bin
 echo "setting up python dependencies"
-pip2 install --user --upgrade nflgame-redux  # version required for python3 support
-pip2 install --user --upgrade ipython pandas numpy matplotlib scipy  # python research libraries
-
-export PATH=$PATH:$HOME/Library/Python/2.7/bin  # put in bash profile to reuse
+pip2 install --user --upgrade nfldb nflgame-redux requests bs4
+pip2 install --user --upgrade ipython pandas numpy matplotlib scipy
+export PATH=$PATH:$HOME/Library/Python/2.7/bin
 
 # setup nfldb configuration environment
 if [ ! -d "$HOME/.config/nfldb" ]; then
