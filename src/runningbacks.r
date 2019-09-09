@@ -1,6 +1,6 @@
 source("tools/connect.r")
 
-YEAR = 2018
+YEAR = 2019
 MIN_REL_LOAD_PCT = 1/2
 
 fp = RunQuery(CONNECTION, "select * from fantasy_points")
