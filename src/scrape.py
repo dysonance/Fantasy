@@ -139,5 +139,26 @@ def scrape_outsiders(domain=DOMAIN, pages=PAGES, year=YEAR, data_path=DATA_PATH)
     return data
 
 
+def to_sheetname(filename):
+    sheetname = "".join(filename.split(".")[:-1])
+    if "team" in filename:
+        sheetname = "Team {}".format(sheetname.replace("team", "").title())
+    else:
+        sheetname = sheetname.upper()
+    return sheetname
+
+
+def generate_spreadsheet(year=YEAR, data_path=DATA_PATH):
+    logging.info("combining data to generate spreadsheet")
+    data_dir = "{}/{}".format(data_path, year)
+    outfile = "{}/FO{}.xlsx".format(data_dir, year)
+    writer = pd.ExcelWriter(outfile)
+    for filename in os.listdir(data_dir):
+        if filename[-4:] == ".csv":
+            pd.read_csv("{}/{}".format(data_dir, filename)).to_excel(writer, to_sheetname(filename), index=False)
+    writer.save()
+
+
 if __name__ == "__main__":
     scrape_outsiders()
+    generate_spreadsheet()
