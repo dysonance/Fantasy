@@ -13,7 +13,7 @@ PAGES = ["ol", "dl", "teamoff", "teamdef", "teamst", "rb", "qb", "wr", "te"]
 DATA_PATH = "data/outsiders/"
 
 # TODO: make script argument
-YEAR = 2018
+YEAR = 2019
 
 
 def format_text(s):
