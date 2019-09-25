@@ -1,11 +1,15 @@
-using LibPQ, Statistics
-
+using Query, Statistics
 include("src/query.jl")
 
-CONNECTION = LibPQ.Connection("dbname=nfldb")
-YEAR = 2018
-MIN_REL_TGT_PCT = 2/3
+DB = connect()
 
-fantasy_points = run_query(CONNECTION, "select * from fantasy_points")
-team_balance = run_query(CONNECTION, "select * from team_balance")
-# by(team_balance, [:year, :offense], d->mean(d[:pct_pass]))
+fp = query(DB, "select * from fantasy_points")
+tb = query(DB, "select * from team_balance")
+
+A = @from i in tb begin
+    @where i.year >= 2018
+    @group i by i.offense into x
+    @select {Team=key(x), PctPass=mean(x.pct_pass), PctRun=mean(x.pct_run)}
+    @collect DataFrame
+end
+A = sort(A, (order(:PctPass, rev=true)))
