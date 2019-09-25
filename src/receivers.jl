@@ -3,10 +3,10 @@ include("src/query.jl")
 
 DB = connect()
 
-fp = query(DB, "select * from fantasy_points")
-tb = query(DB, "select * from team_balance")
+fantasy_points = query(DB, "select * from fantasy_points")
+balance = query(DB, "select * from team_balance")
 
-A = @from i in tb begin
+A = @from i in balance begin
     @where i.year >= 2018
     @group i by i.offense into x
     @select {Team=key(x), PctPass=mean(x.pct_pass), PctRun=mean(x.pct_run)}
