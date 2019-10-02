@@ -6,6 +6,7 @@ nfldb-update
 
 # use `py` shortcut for preferred python version
 shopt -s expand_aliases
+. ~/Chest/config/.bash_profile
 
 # scrape data from web
 py src/scrape.py

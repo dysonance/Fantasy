@@ -155,7 +155,12 @@ def generate_spreadsheet(year=YEAR, data_path=DATA_PATH):
     writer = pd.ExcelWriter(outfile)
     for filename in os.listdir(data_dir):
         if filename[-4:] == ".csv":
-            pd.read_csv("{}/{}".format(data_dir, filename)).to_excel(writer, to_sheetname(filename), index=False)
+            X = pd.read_csv("{}/{}".format(data_dir, filename))
+            cols = [str(c).upper() for c in X.columns.tolist()]
+            if (cols[0] == "RK" or cols[0] == "RANK") and cols[1] == "TEAM":
+                cols = [cols[1], cols[0]] + cols[2:]
+                X = X[cols]
+            X.to_excel(writer, to_sheetname(filename), index=False)
     writer.save()
 
 
