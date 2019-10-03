@@ -1,5 +1,5 @@
 using Query, Statistics
-include("src/query.jl")
+include("query.jl")
 
 DB = connect()
 

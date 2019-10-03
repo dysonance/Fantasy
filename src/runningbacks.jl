@@ -1,38 +1,46 @@
 using Query, Statistics
-include("src/query.jl")
+include("query.jl")
+include("utility.jl")
 
 DB = LibPQ.Connection("dbname=nfldb")
+MIN_YEAR = 2018
 
+# load key datasets
 rb = query(DB, read("queries/runningbacks.sql", String))
-
 balance = query(DB, "select * from team_balance")
-A = @from i in balance begin
-    @where i.year >= 2018
-    @group i by i.offense into x
-    @select {Team=key(x), PctPass=mean(x.pct_pass), PctRun=mean(x.pct_run)}
-    @collect DataFrame
-end
 
 # tendency of team to use run plays
-A = sort(A, (order(:PctRun, rev=true)))
+runchance = balance |>
+    @groupby({_.offense, _.year}) |>
+    @map({team=key(_).offense, year=key(_).year, pct_pass=mean(_.pct_pass), pct_run=mean(_.pct_run)}) |>
+    @orderby_descending(_.pct_run) |>
+    DataFrame
 
 # chances of getting the carry on a run play
-B = @from x in rb begin
-    @group x by {x.team, x.name} into y
-    @select {y.team, y.name, sum(y.runyds)}
-    @collect 
-end
+runstats = rb |>
+    @groupby({_.team, _.year, _.name}) |>
+    @map({
+        year=key(_).year,
+        team=key(_).team,
+        player=key(_).name,
+        rushes=sum(_.rushes),
+        yds=sum(_.runyds),
+        avg=mean(_.runyds),
+        #vol=std(_.runyds)
+    }) |>
+    @orderby({_.year, _.team}) |>
+    DataFrame
 
-# yardage expected value and volatility
-function convert_yardline(yardline::String)::Int
-    pattern = r"[0-9-]+"
-    m = match(pattern, yardline)
-    if isa(m, Nothing)
-        return -1
-    end
-    x = parse(Int, m.match)
-    if x < 0
-        return -x
-    end
-    return x+50
-end
+teamruns = runstats |>
+    @groupby({_.team, _.year}) |>
+    @map({team=key(_).team, year=key(_).year, rushes=sum(_.rushes)}) |>
+    DataFrame
+runshare = runstats |>
+    @join(teamruns, {_.team, _.year}, {_.team, _.year}, {_.team, _.year, _.player, runshare=_.rushes/__.rushes}) |>
+    DataFrame
+runstats = runstats |>
+    @join(runshare, {_.team, _.year, _.player}, {_.team, _.year, _.player}, {_.team, _.year, _.player, _.rushes, __.runshare, _.yds, _.avg,}) |>
+    @join(runchance, {_.team, _.year}, {_.team, _.year}, {_.team, _.year, _.player, runchance=__.pct_run, _.runshare, _.rushes, _.yds, _.avg}) |>
+    DataFrame
+
+runstats |> @filter(_.year>=MIN_YEAR) |> @orderby_descending(_.runchance*_.runshare*_.avg) |> DataFrame
