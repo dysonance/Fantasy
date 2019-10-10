@@ -6,6 +6,8 @@ import os
 import re
 import logging
 import requests
+import __main__
+import ipdb
 from bs4 import BeautifulSoup
 
 DOMAIN = "https://www.footballoutsiders.com/stats"
@@ -156,7 +158,8 @@ def generate_spreadsheet(year=YEAR, data_path=DATA_PATH):
     for filename in os.listdir(data_dir):
         if filename[-4:] == ".csv":
             X = pd.read_csv("{}/{}".format(data_dir, filename))
-            cols = [str(c).upper() for c in X.columns.tolist()]
+            cols = [str(c).upper().strip() for c in X.columns.tolist()]
+            X.columns = cols
             if (cols[0] == "RK" or cols[0] == "RANK") and cols[1] == "TEAM":
                 cols = [cols[1], cols[0]] + cols[2:]
                 X = X[cols]
@@ -164,6 +167,14 @@ def generate_spreadsheet(year=YEAR, data_path=DATA_PATH):
     writer.save()
 
 
-if __name__ == "__main__":
+def main():
     scrape_outsiders()
     generate_spreadsheet()
+
+
+if __name__ == "__main__":
+    if hasattr(__main__, "__file__"):
+        main()
+    else:
+        with ipdb.launch_ipdb_on_exception():
+            main()
