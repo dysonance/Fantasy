@@ -1,16 +1,4 @@
-library(data.table)
-library(RPostgreSQL)
-
-RunQuery = function(connection, query){
-  result = dbSendQuery(connection, query)
-  out = fetch(result, n=-1)
-  dbClearResult(result)
-  return(as.data.table(out))
-}
-
-if (!exists("CONNECTION")){
-  CONNECTION = dbConnect(PostgreSQL(), user="nfldb", dbname="nfldb", host="localhost")
-}
+source("src/util/connect.r")
 
 query = paste(readLines("tmp.sql"), collapse=' ')
 X = RunQuery(CONNECTION, query)

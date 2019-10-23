@@ -1,12 +1,12 @@
 using Query, Statistics
-include("query.jl")
-include("utility.jl")
+include("src/util/query.jl")
+include("src/util/utility.jl")
 
 DB = LibPQ.Connection("dbname=nfldb")
 MIN_YEAR = 2018
 
 # load key datasets
-rb = query(DB, read("queries/runningbacks.sql", String))
+rb = query(DB, read("src/io/qry/runningbacks.sql", String))
 balance = query(DB, "select * from team_balance")
 
 # tendency of team to use run plays
@@ -43,4 +43,5 @@ runstats = runstats |>
     @join(runchance, {_.team, _.year}, {_.team, _.year}, {_.team, _.year, _.player, runchance=__.pct_run, _.runshare, _.rushes, _.yds, _.avg}) |>
     DataFrame
 
-runstats |> @filter(_.year>=MIN_YEAR) |> @orderby_descending(_.runchance*_.runshare*_.avg) |> DataFrame
+runstats[:score] = runstats[:runchance] .* runstats[:runshare] .* runstats[:avg]
+runstats |> @filter(_.year>=MIN_YEAR) |> @orderby_descending(_.score) |> DataFrame

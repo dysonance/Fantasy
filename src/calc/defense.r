@@ -12,7 +12,7 @@ if (!exists("CONNECTION")){
   CONNECTION = dbConnect(PostgreSQL(), user="nfldb", dbname="nfldb", host="localhost")
 }
 
-query = paste(readLines("queries/defense.sql"), collapse=' ')
+query = paste(readLines("src/io/qry/defense.sql"), collapse=' ')
 defense = RunQuery(CONNECTION, query)
 defense[, dt:=pt+rt]
 
@@ -41,4 +41,4 @@ PlotDefenseRankings = function(defense, yr=year(Sys.Date()), wk=NULL, outfile=NU
     dev.off()
   }
 }
-PlotDefenseRankings(defense, 2018, NULL, "figures/defense.png")
+PlotDefenseRankings(defense, 2018, NULL, "fig/defense.png")

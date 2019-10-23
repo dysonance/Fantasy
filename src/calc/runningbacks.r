@@ -1,4 +1,4 @@
-source("tools/connect.r")
+source("src/util/connect.r")
 
 YEAR = 2019
 MIN_REL_LOAD_PCT = 1/2
@@ -15,7 +15,7 @@ TB = tb[,
         by=.(offense,year)]
 
 options(warn=-1)
-rb = RunQuery(CONNECTION, ReadQuery("queries/runningbacks.sql"))
+rb = RunQuery(CONNECTION, ReadQuery("src/io/qry/runningbacks.sql"))
 options(warn=0)
 rb[,yardline:=as.integer(gsub('[()]','',yardline))+50]
 rb = merge(rb, tb[,.(offense,year,week,n_run,n_pass)], by.x=c('team','year','week'), by.y=c('offense','year','week'))
@@ -58,4 +58,4 @@ PlotRunningbackRankings = function(RB, outfile=NULL){
     PlotRunningbackRankings(RB, NULL)
   }
 }
-PlotRunningbackRankings(RB, "figures/runningbacks.png")
+PlotRunningbackRankings(RB, "fig/runningbacks.png")

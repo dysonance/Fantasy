@@ -4,7 +4,7 @@ CONNECTION = LibPQ.Connection("dbname=nfldb")
 YEAR = 2018
 WEEK = 3
 
-query = read("queries/defense.sql", String)
+query = read("src/io/qry/defense.sql", String)
 
 function run_query(CONNECTION, query)
     result = execute(CONNECTION, query)

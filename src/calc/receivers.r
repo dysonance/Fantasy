@@ -1,4 +1,4 @@
-source("tools/connect.r")
+source("src/util/connect.r")
 
 YEAR = 2019
 MIN_REL_TGT_PCT = 2/3
@@ -15,14 +15,14 @@ TB = tb[,
         by=.(offense,year)]
 
 options(warn=-1)
-te = RunQuery(CONNECTION, ReadQuery("queries/tight_ends.sql"))
+te = RunQuery(CONNECTION, ReadQuery("src/io/qry/tight_ends.sql"))
 options(warn=0)
 te[,yardline:=as.integer(gsub('[()]','',yardline))+50]
 te = merge(te, tb[,.(offense,year,week,n_plays,n_pass)], by.x=c('team','year','week'), by.y=c('offense','year','week'))
 te[,pct_tgt:=sum(targets)/mean(n_pass), by=.(name,year,week)]
 
 options(warn=-1)
-wr = RunQuery(CONNECTION, ReadQuery("queries/receivers.sql"))
+wr = RunQuery(CONNECTION, ReadQuery("src/io/qry/receivers.sql"))
 options(warn=0)
 wr[,yardline:=as.integer(gsub('[()]','',yardline))+50]
 wr = merge(wr, tb[,.(offense,year,week,n_plays,n_pass)], by.x=c('team','year','week'), by.y=c('offense','year','week'))
@@ -61,7 +61,7 @@ WR[,score:=log(targets*pct_pass*tgt_pct*catchrate*yds/catches*relyds/vol)*fp[yea
 WR = WR[order(score)][tgt_pct>=quantile(tgt_pct,MIN_REL_TGT_PCT)[[1]]&catches>1][score>0]
 WR
 
-PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
+PlotCatcherValues = function(WR, TE, outfile="fig/wr-te.png"){
   if (!is.null(outfile)){
     png(outfile, width=11, height=8.5, units='in', res=600)
   }
@@ -83,4 +83,4 @@ PlotCatcherValues = function(WR, TE, outfile="figures/wr-te.png"){
     PlotCatcherValues(WR, TE, NULL)
   }
 }
-PlotCatcherValues(WR, TE, "figures/receivers.png")
+PlotCatcherValues(WR, TE, "fig/receivers.png")
