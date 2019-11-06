@@ -1,13 +1,7 @@
 #!/bin/bash
 
 PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
-
-# project root directory
-PROJECT="$(pwd)"
-SNAPSHOT_DIR="$PROJECT/data"
-SNAPSHOT_SQL="nfldb.sql"
-SNAPSHOT_ZIP="$SNAPSHOT_SQL.zip"
-SNAPSHOT_URL="http://burntsushi.net/stuff/nfldb/$SNAPSHOT_ZIP"
+SNAPSHOT_URL="http://burntsushi.net/stuff/nfldb/nfldb.sql.zip"
 
 # set up the user and database
 echo "initializing database"
@@ -16,15 +10,15 @@ psql postgres -c "CREATE DATABASE nfldb OWNER nfldb;"
 psql -c "CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;" nfldb
 
 # download the database zip file and import
-if [ ! -f "$SNAPSHOT_DIR/$SNAPSHOT_SQL" ]; then
+if [ ! -f "data/nfldb.sql" ]; then
     echo "downloading database snapshot"
-    wget $SNAPSHOT_URL -O $SNAPSHOT_DIR/$SNAPSHOT_ZIP -o log/download.log
-    unzip $SNAPSHOT_DIR/$SNAPSHOT_ZIP -d $SNAPSHOT_DIR
+    wget $SNAPSHOT_URL -O data/nfldb.sql.zip -o log/download.log
+    unzip data/nfldb.sql.zip -d data
 fi
 
 # import the database snapshot to local database
 echo "importing snapshot download into local database"
-psql -U nfldb nfldb < $SNAPSHOT_DIR/$SNAPSHOT_SQL
+psql -U nfldb nfldb < data/nfldb.sql
 
 # install python packages
 # NOTE: binaries install to ~/Library/Python/2.7/bin
