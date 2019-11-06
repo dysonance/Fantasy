@@ -12,8 +12,8 @@ shopt -s expand_aliases
 py src/io/web/scrape.py
 
 # update database
-psql nfldb -f tools/functions.sql
-psql nfldb -f tools/views.sql
+psql nfldb -f util/functions.sql
+psql nfldb -f util/views.sql
 
 # update visualizations
 R -q -e "source('src/calc/receivers.r')"
