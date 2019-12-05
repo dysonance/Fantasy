@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # see deployment script for installation
-export PATH=$PATH:$HOME/Library/Python/2.7/bin
+PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
+export PATH=$PATH:$PYTHON_PACKAGE_PATH
 nfldb-update
 
 # use `py` shortcut for preferred python version
