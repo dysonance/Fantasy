@@ -27,23 +27,23 @@ Given the finer details offered through data at a more granular level, we seek t
 ## Outcomes
 Take, for example, "fantasy points", commonly used in standard-scoring fantasy football leagues. This formula defines in precise terms a quantitative summary of the outcome of any given player's performance throughout a discrete game. Each of the following summary statistics measured over the course of a single game equates to one fantasy point. The player's total is summed throughout the game to get the player's total points for the outing.
 
-| Context            | Event                             | Points Per Occurrence   |
-|------------------- | :-------------------------------: | ----------------------: |
-| Rushing/Receiving  | Yard Gained                       | $\tfrac{1}{10}$         |
-| Rushing/Receiving  | Touchdown Scored                  | 6                       |
-| Rushing/Receiving  | Fumble Lost                       | -2                      |
-| Passing            | Yard Gained                       | 25                      |
-| Passing            | Touchdown Scored                  | 4                       |
-| Passing            | Interception Thrown               | -2                      |
-| Special Teams      | Extra Point Scored                | 1                       |
-| Special Teams      | Field Goal Scored (0-39 Yards)    | 3                       |
-| Special Teams      | Field Goal Scored (40-49 Yards)   | 4                       |
-| Special Teams      | Field Goal Scored (50+ Yards)     | 5                       |
-| Defense            | Turnover Won                      | $\tfrac{1}{2}$          |
-| Defense            | Quarterback Sacked                | 1                       |
-| Defense            | Safety Scored                     | $\tfrac{1}{2}$          |
-| Defense            | Touchdown Scored                  | $\tfrac{1}{6}$          |
-| Defense            | Kick Blocked                      | $\tfrac{1}{2}$          |
+| Context             | Event                             | Points Per Occurrence   |
+| ------------------- | :-------------------------------: | ----------------------: |
+| Rushing/Receiving   | Yard Gained                       | $\tfrac{1}{10}$         |
+| Rushing/Receiving   | Touchdown Scored                  | 6                       |
+| Rushing/Receiving   | Fumble Lost                       | -2                      |
+| Passing             | Yard Gained                       | $\tfrac{1}{25}$         |
+| Passing             | Touchdown Scored                  | 4                       |
+| Passing             | Interception Thrown               | -2                      |
+| Special Teams       | Extra Point Scored                | 1                       |
+| Special Teams       | Field Goal Scored (0-39 Yards)    | 3                       |
+| Special Teams       | Field Goal Scored (40-49 Yards)   | 4                       |
+| Special Teams       | Field Goal Scored (50+ Yards)     | 5                       |
+| Defense             | Turnover Won                      | 2                       |
+| Defense             | Quarterback Sacked                | 1                       |
+| Defense             | Safety Scored                     | 2                       |
+| Defense             | Touchdown Scored                  | 6                       |
+| Defense             | Kick Blocked                      | 2                       |
 
 ---
 
