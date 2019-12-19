@@ -26,7 +26,7 @@ psql -U nfldb nfldb < data/nfldb.sql
 # install python packages
 # NOTE: binaries install to ~/Library/Python/2.7/bin
 echo "setting up python dependencies"
-pip2 install --user --upgrade nfldb nflgame-redux requests bs4
+pip2 install --user --upgrade nfldb nflgame nflgame-redux requests bs4
 pip2 install --user --upgrade ipython pandas numpy matplotlib scipy requests bs4 openpyxl
 ipi install --upgrade ipython pandas numpy matplotlib scipy requests bs4 openpyxl
 export PATH=$PATH:$HOME/Library/Python/2.7/bin
