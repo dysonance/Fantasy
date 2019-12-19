@@ -3,7 +3,7 @@
 # see deployment script for installation
 PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
 export PATH=$PATH:$PYTHON_PACKAGE_PATH
-nfldb-update
+./util/nfldb-update
 
 # use `py` shortcut for preferred python version
 shopt -s expand_aliases
