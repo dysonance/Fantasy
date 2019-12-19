@@ -5,13 +5,14 @@ toc: true
 numbersections: true
 listings: true
 geometry: |
-    margin=1in
+    margin=0.5in
 header-includes: |
     \usepackage{bm}
     \usepackage{mathrsfs}
     \usepackage{amsfonts}
     \usepackage{amssymb}
     \usepackage{amsmath}
+    \usepackage{mathalfa}
     \usepackage[utf8]{inputenc}
 ---
 
@@ -19,12 +20,12 @@ header-includes: |
 
 # Introduction
 
-## Objective
+## Motivation
 We want to be able to predict the outcome of a player's performance in the future in as generalizable a manner as possible. Insofar as the most general ultimate solution to this performance prediction problem should be automatably with reasonably well-structured information for input, we should aim to rely solely on directly observable data produced as play occurs.
 
 Given the finer details offered through data at a more granular level, we seek to infer more precise estimates/predictions of what the future outcome will be. This future "outcome" may be determined in any number of ways, often through the lens of some summary statistic computed based on aggregated game performance.
 
-## Outcomes
+## Scoring
 Take, for example, "fantasy points", commonly used in standard-scoring fantasy football leagues. This formula defines in precise terms a quantitative summary of the outcome of any given player's performance throughout a discrete game. Each of the following summary statistics measured over the course of a single game equates to one fantasy point. The player's total is summed throughout the game to get the player's total points for the outing.
 
 | Context             | Event                             | Points Per Occurrence   |
@@ -44,6 +45,26 @@ Take, for example, "fantasy points", commonly used in standard-scoring fantasy f
 | Defense             | Safety Scored                     | 2                       |
 | Defense             | Touchdown Scored                  | 6                       |
 | Defense             | Kick Blocked                      | 2                       |
+
+Table 1: Fantasy Football Standard Scoring Breakdown
+
+## Objective
+Given the above scoring breakdown, we can construct a mathematical formula for this statistic based on the various in-game component statistics that evolve in real-time during gameplay. These constituent metrics also provide a finer degree of detail that should prove useful for sharpening estimates of this outcome, provided that on the whole they permit a higher signal/noise ratio facilitating more accurate predictions.
+
+Let us proceed using the following notation.
+
+- Let $f$ denote the total fantasy points realized, with $f$ an estimate or prediction thereof. Further, let us denote the difference between predicted and observed $f$ as $\varepsilon$.
+- Let $y$ denote yards gained generally, with passing yards $y^{p}$ and rushing or receiving yards $y^{r}$.
+- Let $\tau$ denote touchdowns scored generally, with passing touchdowns $\tau^{p}$ and rushing or receiving touchdowns $\tau^{r}$.
+- Let $\ell$ denote lost turnovers generally, with interceptions specified as $\ell^{I}$ and fumbles $\ell^{F}$ where distinction is appropriate.
+
+Then we have the following mathematical relationship quantifying summative realized value for an offensive player.
+
+$$
+f := \left( 6\tau^{r} + 4\tau^{p} \right) + \left( \frac{y^{r}}{10} + \frac{y^{p}}{25} \right) - 2\ell
+$$
+
+To restrain the scope of the problem we seek to solve, we shall assume that our ultimate objective is to minimize $\mathbb{E}\left[ \varepsilon \right]$, that is, to predict the relevant future outcome as closely as possible.
 
 ---
 
