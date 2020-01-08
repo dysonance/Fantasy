@@ -28,25 +28,25 @@ Given the finer details offered through data at a more granular level, we seek t
 ## Scoring
 Take, for example, "fantasy points", commonly used in standard-scoring fantasy football leagues. This formula defines in precise terms a quantitative summary of the outcome of any given player's performance throughout a discrete game. Each of the following summary statistics measured over the course of a single game equates to one fantasy point. The player's total is summed throughout the game to get the player's total points for the outing.
 
-| Context             | Event                             | Points Per Occurrence   |
-| ------------------- | :-------------------------------: | ----------------------: |
-| Rushing/Receiving   | Yard Gained                       | $\tfrac{1}{10}$         |
-| Rushing/Receiving   | Touchdown Scored                  | 6                       |
-| Rushing/Receiving   | Fumble Lost                       | -2                      |
-| Passing             | Yard Gained                       | $\tfrac{1}{25}$         |
-| Passing             | Touchdown Scored                  | 4                       |
-| Passing             | Interception Thrown               | -2                      |
-| Special Teams       | Extra Point Scored                | 1                       |
-| Special Teams       | Field Goal Scored (0-39 Yards)    | 3                       |
-| Special Teams       | Field Goal Scored (40-49 Yards)   | 4                       |
-| Special Teams       | Field Goal Scored (50+ Yards)     | 5                       |
-| Defense             | Turnover Won                      | 2                       |
-| Defense             | Quarterback Sacked                | 1                       |
-| Defense             | Safety Scored                     | 2                       |
-| Defense             | Touchdown Scored                  | 6                       |
-| Defense             | Kick Blocked                      | 2                       |
+| Context           | Event                           | Points/Occurrence |  Notation  |
+|:------------------+:--------------------------------+:-----------------:+:----------:|
+| Rushing/Receiving | Yard Gained                     |  $\tfrac{1}{10}$  |   $y^{r}$  |
+| Rushing/Receiving | Touchdown Scored                |         6         | $\tau^{r}$ |
+| Rushing/Receiving | Fumble Lost                     |         -2        |   $\ell$   |
+| Passing           | Yard Gained                     |  $\tfrac{1}{25}$  |   $y^{p}$  |
+| Passing           | Touchdown Scored                |         4         | $\tau^{p}$ |
+| Passing           | Interception Thrown             |         -2        |   $\ell$   |
+| Special Teams     | Extra Point Scored              |         1         |            |
+| Special Teams     | Field Goal Scored (0-39 Yards)  |         3         |            |
+| Special Teams     | Field Goal Scored (40-49 Yards) |         4         |            |
+| Special Teams     | Field Goal Scored (50+ Yards)   |         5         |            |
+| Defense           | Turnover Won                    |         2         |            |
+| Defense           | Quarterback Sacked              |         1         |            |
+| Defense           | Safety Scored                   |         2         |            |
+| Defense           | Touchdown Scored                |         6         |            |
+| Defense           | Kick Blocked                    |         2         |            |
 
-Table 1: Fantasy Football Standard Scoring Breakdown
+Table: Fantasy Football Standard Scoring Breakdown
 
 ## Objective
 Given the above scoring breakdown, we can construct a mathematical formula for this statistic based on the various in-game component statistics that evolve in real-time during gameplay. These constituent metrics also provide a finer degree of detail that should prove useful for sharpening estimates of this outcome, provided that on the whole they permit a higher signal/noise ratio facilitating more accurate predictions.
@@ -76,14 +76,65 @@ Each particular position carries its own unique implications for how to predict 
 Let us consider the standard formula for expected value as a motivating principle.
 
 $$
-\mathbb{E}\left[ X \right] := \int_{0}^{\infty}\left[ x \cdot p\left( x \right) dx \right]
+\mathbb{E}\left[ X \right] := \int_{0}^{\infty}\left[ x \cdot \mathbb{P}\left( x \right) dx \right]
 $$
 
 In our case, the random variable $X$ above would correspond to some statistic of interest summarizing player outcome. If the total fantasy points scored by some player in some game is this statistic, then we might interpret our sample space $X$ to be the space of all possible fantasy points scorable in a single game. One could imagine this space to have high density around the center and low density around its edges where the best and worst games are achieved.
 
 We would be remiss, however, not to observe the following propositions.
+
 1. Each point $x \in X$ is determined by numerous other observable random variables.
 2. Given data recorded at sub-game frequency, we may sharpen our estimates of $\mathbb{E}\left[ X \right]$.
+
+## Decompositions
+For each metric involved in scoring, there exists some decomposed formula with more granular data that may improve the metric's estimate. As a concrete example, consider the sources of randomness involved in a player earning points for a rushing yards. The playcaller --- rarely the same persona as the player in question --- must decide to call a run play. From there the usual sources of randomness driving the success of the attempt come into play, ultimately resulting in a distribution of yardages earned per rushing attempt.
+
+The location of the distribution of observed outcomes for a given player is contingent on several other factors. How good is the offensive line? Was the play called a good one? How good is the defense, particularly when defending against plays of this type? All of these questions play pivotal roles in the expected outcome of a given attempt. Before diving into these effectively uncontrollable factors, however, let us begin by decomposing each point-bearing event of interest into the salient constituent sources of randomness.
+
+### Runningbacks/Receivers
+The value derived from a single play $t$ by a single player at the runningback or wide receiver position is driven largely by the following quantifiable components.
+
+- Class of play called $C$ for play $t$:
+$$
+\mathbb{I}^{C}_{t} = \begin{cases}
+    1 & \text{play $t$ is a pass play} \\
+    0 & \text{play $t$ is a run play}
+\end{cases}
+$$
+- Utilization $U$ of player in play $t$:
+$$
+\mathbb{I}^{U|C}_{t} = \begin{cases}
+    C = 1 & \begin{cases}
+        1 & \text{player targeted in pass attempt} \\
+        0 & \text{otherwise} \\
+    \end{cases} \\
+    C = 0 & \begin{cases}
+        1 & \text{player attempts rush} \\
+        0 & \text{otherwise}
+    \end{cases}
+\end{cases}
+$$
+- Chance that play results in a touchdown:
+$$
+\mathbb{I}^ {\tau}_{t} = \begin{cases}
+    1 & \text{touchdown} \\
+    0 & \text{no touchdown}
+\end{cases}
+$$
+- Expected yardage gained by the player in question when utilized in the attempts: $\mathbb{E}\left[ y^{r} \right]$
+
+Mathematically, we may summarize this decomposition as follows.
+
+$$
+\mathbb{E} \left[ X_{t} \right] =
+    \left[
+        \frac{1}{10} \mathbb{E} \left[ y^{r}_{t} \right]
+        + 6 \mathbb{P}\left( \mathbb{I}^{\tau}_{t} \right)
+    \right]
+    \cdot \mathbb{P} \left( \mathbb{I}^{U|C}_{t} \right)
+$$
+
+### Quarterbacks
 
 ---
 
