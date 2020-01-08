@@ -5,7 +5,7 @@ toc: true
 numbersections: true
 listings: true
 geometry: |
-    margin=0.5in
+    margin=1in
 header-includes: |
     \usepackage{bm}
     \usepackage{mathrsfs}
@@ -17,6 +17,8 @@ header-includes: |
 ---
 
 \newpage
+
+---
 
 # Introduction
 
@@ -66,9 +68,9 @@ $$
 
 To restrain the scope of the problem we seek to solve, we shall assume that our ultimate objective is to minimize $\mathbb{E}\left[ \varepsilon \right]$, that is, to predict the relevant future outcome as closely as possible.
 
----
-
 \newpage
+
+---
 
 # Approach
 Each particular position carries its own unique implications for how to predict a given summary statistic encapsulating outcome. To give the problem framing some structure, however, let there exist some unifying approach that applies across positions as a general model for how to estimate the expected outcome of a player given distributions around some randomness in underlying observable data.
@@ -86,59 +88,124 @@ We would be remiss, however, not to observe the following propositions.
 1. Each point $x \in X$ is determined by numerous other observable random variables.
 2. Given data recorded at sub-game frequency, we may sharpen our estimates of $\mathbb{E}\left[ X \right]$.
 
-## Decompositions
+## Decomposition
 For each metric involved in scoring, there exists some decomposed formula with more granular data that may improve the metric's estimate. As a concrete example, consider the sources of randomness involved in a player earning points for a rushing yards. The playcaller --- rarely the same persona as the player in question --- must decide to call a run play. From there the usual sources of randomness driving the success of the attempt come into play, ultimately resulting in a distribution of yardages earned per rushing attempt.
 
 The location of the distribution of observed outcomes for a given player is contingent on several other factors. How good is the offensive line? Was the play called a good one? How good is the defense, particularly when defending against plays of this type? All of these questions play pivotal roles in the expected outcome of a given attempt. Before diving into these effectively uncontrollable factors, however, let us begin by decomposing each point-bearing event of interest into the salient constituent sources of randomness.
 
-### Runningbacks/Receivers
 The value derived from a single play $t$ by a single player at the runningback or wide receiver position is driven largely by the following quantifiable components.
 
-- Class of play called $C$ for play $t$:
+- Class of play called $C \in \left\{ 0, 1 \right\}$ for play $t$:
 $$
-\mathbb{I}^{C}_{t} = \begin{cases}
+C_{t} = \begin{cases}
     1 & \text{play $t$ is a pass play} \\
     0 & \text{play $t$ is a run play}
 \end{cases}
 $$
-- Utilization $U$ of player in play $t$:
+- Utilization $U$ of layer in play $t$ given play class $C_{t}$[^field_position_conditionality]:
 $$
-\mathbb{I}^{U|C}_{t} = \begin{cases}
-    C = 1 & \begin{cases}
-        1 & \text{player targeted in pass attempt} \\
-        0 & \text{otherwise} \\
-    \end{cases} \\
-    C = 0 & \begin{cases}
-        1 & \text{player attempts rush} \\
-        0 & \text{otherwise}
-    \end{cases}
-\end{cases}
+\begin{aligned}
+    U^{r_{0}}_{t} & = 1 & \Longleftrightarrow & \quad & \text{player attempts rush during run play}      \\
+    U^{r_{1}}_{t} & = 1 & \Longleftrightarrow & \quad & \text{player targeted by throw during pass play} \\
+    U^{p}_{t}     & = 1 & \Longleftrightarrow & \quad & \text{player throws during pass play}
+\end{aligned}
 $$
-- Chance that play results in a touchdown:
+- Expected yardage gained when utilized during play $t$ (conditional on class of play called $C_{t}$): $\mathbb{E}\left[ y^{r}_{t} | C_{t} \right]$
+- Chance of player scoring touchdown[^touchdown_conditionality]:
 $$
-\mathbb{I}^ {\tau}_{t} = \begin{cases}
+\tau_{t} = \begin{cases}
     1 & \text{touchdown} \\
     0 & \text{no touchdown}
 \end{cases}
 $$
-- Expected yardage gained by the player in question when utilized in the attempts: $\mathbb{E}\left[ y^{r} \right]$
-
-Mathematically, we may summarize this decomposition as follows.
-
+- Chance of player losing possession through turnover given player is utilized:
 $$
-\mathbb{E} \left[ X_{t} \right] =
-    \left[
-        \frac{1}{10} \mathbb{E} \left[ y^{r}_{t} \right]
-        + 6 \mathbb{P}\left( \mathbb{I}^{\tau}_{t} \right)
-    \right]
-    \cdot \mathbb{P} \left( \mathbb{I}^{U|C}_{t} \right)
+\ell_{t} = \begin{cases}
+    1 & \text{player fumbles or throws interception} \\
+    0 & \text{otherwise} \\
+\end{cases}
 $$
 
-### Quarterbacks
+Mathematically, we may summarize this decomposition of a player's estimated value by adding the deconstructed expected values corresponding to each value-adding element of the game.
+$$
+\begin{aligned}
+    \mathbb{E} \left[ X^{*}_{t} \right] =&
+        \mathbb{E}\left[ X^{r_{0}}_{t} \right] +
+        \mathbb{E}\left[ X^{r_{1}}_{t} \right] +
+        \mathbb{E}\left[ X^{p}_{t} \right]
+    \\
+    \mathbb{E} \left[ X^{*}_{t} \right] =&
+        \\
+        & \left(
+            \frac{1}{10} \mathbb{E}\left[ y^{r_{0}}_{t} \right]
+            + 6 \mathbb{P} \left( \tau^{r_{0}}_{t} \right)
+            - 2 \mathbb{P} \left( \ell^{r_{0}}_{t} \right)
+        \right)
+        \cdot \mathbb{P} \left( U^{r_{0}}_{t} \right)
+        \cdot \mathbb{P} \left( C_{t}=0 \right)
+        %& \quad & \text{\tiny{rushing component}}
+        \\
+        + & \left(
+            \frac{1}{10} \mathbb{E}\left[ y^{r_{1}}_{t} \right]
+            + 6 \mathbb{P} \left( \tau^{r_{1}}_{t} \right)
+            - 2 \mathbb{P} \left( \ell^{r_{1}}_{t} \right)
+        \right)
+        \cdot \mathbb{P} \left( U^{r_{1}}_{t} \right)
+        \cdot \mathbb{P} \left( C_{t}=1 \right)
+        %& \quad & \text{\tiny{receiving component}}
+        \\
+        + & \left(
+            \frac{1}{25} \mathbb{E}\left[ y^{p}_{t} \right]
+            + 4 \mathbb{P} \left( \tau^{p}_{t} \right)
+            - 2 \mathbb{P} \left( \ell^{p}_{t} \right)
+        \right)
+        \cdot \mathbb{P} \left( U^{p}_{t} \right)
+        \cdot \mathbb{P} \left( C_{t}=1 \right)
+        %& \quad & \text{\tiny{passing component}}
+    \\
+    \mathbb{E} \left[ X^{*}_{t} \right] =&
+        \left(
+            \frac{1}{10} \mathbb{E}\left[ y^{r_{0}}_{t} \right]
+            + 6 \mathbb{P} \left( \tau^{r_{0}}_{t} \right)
+            - 2 \mathbb{P} \left( \ell^{r_{0}}_{t} \right)
+        \right)
+        \cdot \mathbb{P} \left( U^{r_{0}}_{t} \right)
+        \cdot \mathbb{P} \left( C_{t}=0 \right)
+        \\
+        + & \left[ 
+            \left(
+                \frac{1}{10} \mathbb{E}\left[ y^{r_{1}}_{t} \right]
+                + 6 \mathbb{P} \left( \tau^{r_{1}}_{t} \right)
+                - 2 \mathbb{P} \left( \ell^{r_{1}}_{t} \right)
+            \right)
+            \cdot \mathbb{P} \left( U^{r_{1}}_{t} \right)
+            \left(
+                \frac{1}{25} \mathbb{E}\left[ y^{p}_{t} \right]
+                + 4 \mathbb{P} \left( \tau^{p}_{t} \right)
+                - 2 \mathbb{P} \left( \ell^{p}_{t} \right)
+            \right)
+            \cdot \mathbb{P} \left( U^{p}_{t} \right)
+        \right]
+        \cdot \mathbb{P} \left( C_{t}=1 \right)
+\end{aligned}
+$$
 
----
+Over the course of an entire game or season, then, the total expected value derived from a player over would be the sum of values expected across all plays $t \in \left\{ 1,2,\ldots,T \right\}$:
+$$
+\hat{x}_{*} = \sum\limits_{t=1}^{T} \left[ \mathbb{E} \left[ X^{*}_{t} \right] \right]
+$$
+
+From this formulation we may observe some key features. First, the effect of the class of play called reverberates throughout the decomposition, implying a surprisingly strong importance attached to effective estimation of the pass/run balance. Second, and less surprisingly, the likelihood of a player to be utilized proves profoundly relevant, as the best runningback in the universe will deliver no value if injured or kept on the bench. Third, the deeply intertwined nature of these nested conditional probabilities requires careful disentangling. Finally, but equally if not more importantly, precise measurement of the distribution of yardage achieved by a player when utilized proves paramount once we have properly measured and accounted for the other sources of randomness.
+
+Breaking this problem down with such a decomposition allows a more strategic framing of the approach that emphasizes isolation of specific sources of value and volatility --- whose behavior may permit more stable, predictable, and reliable estimates --- we may expect from a given player.
+
+[^field_position_conditionality]: Keep in mind that probabilities of such random variables as player utilization and class of play called could well be further conditional on such other variables as field position, for example. Such other conditions are ignored at this stage for clarity and simplicity but may indeed be considered later to further hone estimations of the random variables of greater interest.
+
+[^touchdown_conditionality]: Note that probability of a touchdown being attributed to a player is in itself conditional both on the probability of play $t$ resulting in a touchdown and the probability of utilization during play $t$, $\mathbb{P} \left( U_{t} | C_{t} \right)$.
 
 \newpage
+
+---
 
 # Appendix: Database Schema
 
