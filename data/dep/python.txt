@@ -1,0 +1,15 @@
+bs4
+ipdb
+ipython
+logging
+matplotlib
+nfldb
+nflgame
+nflgame-redux
+numpy
+openpyxl
+os
+pandas
+re
+requests
+scipy
