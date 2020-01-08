@@ -1,3 +1,4 @@
-colorout
 data.table
+devtools
+jalvesaq/colorout
 RPostgreSQL
