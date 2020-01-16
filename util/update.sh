@@ -7,7 +7,7 @@ nfldb-update
 
 # use `py` shortcut for preferred python version
 shopt -s expand_aliases
-. ~/Base/config/profile.sh
+. ~/Base/config/environment.sh
 
 # scrape data from web
 py src/io/web/scrape.py
