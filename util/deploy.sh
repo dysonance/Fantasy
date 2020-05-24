@@ -4,7 +4,7 @@ PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
 SNAPSHOT_URL="http://burntsushi.net/stuff/nfldb/nfldb.sql.zip"
 
 shopt -s expand_aliases
-. ~/Base/config/profile.sh
+. ~/Base/config/environment.sh
 
 # set up the user and database
 echo "initializing database"
