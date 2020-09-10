@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 
 DOMAIN = "https://www.footballoutsiders.com/stats"
 PAGES = ["ol", "dl", "teamoff", "teamdef", "teamst", "rb", "qb", "wr", "te"]
-DATA_PATH = "data/outsiders/"
+DATA_PATH = "data/outputs/outsiders/"
 
 # TODO: make script argument
 YEAR = 2019
@@ -37,7 +37,7 @@ def collect_columns(table):
     logging.info("collecting table header contents")
     columns = []
     header = table.findAll("thead")[-1].findAll("tr")[-1]
-    for i, field in enumerate(header.children):
+    for _, field in enumerate(header.children):
         try:
             column = format_text(field.text)
             columns.append(column)
@@ -54,11 +54,11 @@ def collect_data(table):
     else:
         rows = table.findChildren("tr")
     data = []
-    for i, row in enumerate(rows):
+    for _, row in enumerate(rows):
         cells = []
         if len(row.findChildren("th")) > len(row.findChildren("td")):
             continue
-        for j, cell in enumerate(row.children):
+        for _, cell in enumerate(row.children):
             try:
                 cells.append(format_text(cell.text))
             except:
@@ -109,7 +109,7 @@ def all_match(pattern, values):
 
 def auto_convert(df):
     column_types = df.apply(lambda x: pd.api.types.infer_dtype(x, skipna=True), axis=0)
-    for j, column in enumerate(df):
+    for j, _ in enumerate(df):
         if column_types[j] == "string":
             values = df.iloc[:, j].values
             # skip ratios
@@ -129,13 +129,13 @@ def auto_convert(df):
     return df
 
 
-def scrape_outsiders(domain=DOMAIN, pages=PAGES, year=YEAR, data_path=DATA_PATH):
+def scrape_outsiders():
     data = {}
-    for page in pages:
-        url = "{}/{}/{}".format(domain, page, year)
+    for page in PAGES:
+        url = "{}/{}/{}".format(DOMAIN, page, YEAR)
         logging.info("attempting to scrape tabular data from {}".format(url))
         try:
-            data[page] = fetch_table_data(page=url, save_location="{}/{}/{}.csv".format(data_path, year, page))
+            data[page] = fetch_table_data(page=url, save_location="{}/{}/{}.csv".format(DATA_PATH, YEAR, page))
         except Exception as error:
             logging.error("failed to fetch tabular data from {}:\n{}".format(url, error))
     return data

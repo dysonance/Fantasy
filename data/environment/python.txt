@@ -1,12 +1,14 @@
+black
 bs4
+flake8
 ipdb
 ipython
 matplotlib
-nfldb
-nflgame
+nfldb-redux
 nflgame-redux
 numpy
 openpyxl
 pandas
+pylint
 requests
 scipy
