@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# create backup snapshot before updating
+./util/backup.sh
+
 # see deployment script for installation
 PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
 export PATH=$PATH:$PYTHON_PACKAGE_PATH/bin

@@ -1,7 +1,9 @@
 #!/bin/bash
 
 PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
-SNAPSHOT_URL="http://burntsushi.net/stuff/nfldb/nfldb.sql.zip"
+NFLDB_VERSION="1.0.0a4"
+SNAPSHOT_YEAR=2019
+SNAPSHOT_URL=https://github.com/derek-adair/nfldb/releases/download/$NFLDB_VERSION/nfldb$SNAPSHOT_YEAR.sql.zip
 
 shopt -s expand_aliases
 . ~/Base/config/environment.sh
@@ -12,16 +14,21 @@ psql postgres -c "CREATE USER nfldb;"
 psql postgres -c "CREATE DATABASE nfldb OWNER nfldb;"
 psql -c "CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;" nfldb
 
-# download the database zip file and import
-if [ ! -f "data/nfldb.sql" ]; then
-    echo "downloading database snapshot"
-    wget $SNAPSHOT_URL -O data/nfldb.sql.zip -o log/download.log
-    unzip data/nfldb.sql.zip -d data
-fi
-
 # import the database snapshot to local database
+echo "downloading database snapshot"
+wget $SNAPSHOT_URL &&
+    unzip nfldb$SNAPSHOT_YEAR.sql.zip &&
+    rm nfldb$SNAPSHOT_YEAR.sql.zip &&
+    mv nfldb$SNAPSHOT_YEAR.sql data/
+
+psql postgres -c 'DROP DATABASE nfldb;'
+psql postgres -c "CREATE DATABASE nfldb;"
+psql nfldb -c 'CREATE EXTENSION fuzzystrmatch;'
+
+# NOTE: weird user/owner bug lines in sql dump need to be deleted
+sed -i -e "s/.*XANEURLENTLEMOIRTAGETAGE.*//g" nfldb.sql
 echo "importing snapshot download into local database"
-psql -U nfldb nfldb < data/nfldb.sql
+psql nfldb <nfldb.sql
 
 # install python packages
 # NOTE: binaries install to ~/Library/Python/2.7/bin
