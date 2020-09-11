@@ -1,6 +1,8 @@
 using LibPQ, DataStreams, DataFrames
 
-connect() = LibPQ.Connection("dbname=nfldb")
+const URI = "host=localhost user=nfldb password=nfldb dbname=nfldb"
+
+connect() = LibPQ.Connection(URI)
 
 function query(connection::LibPQ.Connection, qry::String=""; file::String="")::DataFrame
     result = DataFrame()

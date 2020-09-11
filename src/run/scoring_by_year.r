@@ -1,4 +1,4 @@
-source("src/util/connect.r")
+source("src/data/db/io/database.r")
 
 query = "
 with game_scores as (

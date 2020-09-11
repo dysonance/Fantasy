@@ -4,3 +4,4 @@ DataStreams
 JuliaDB
 LibPQ
 Query
+StatsBase

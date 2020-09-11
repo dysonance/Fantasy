@@ -8,16 +8,14 @@ PYTHON_PACKAGE_PATH=$HOME/Library/Python/2.7
 export PATH=$PATH:$PYTHON_PACKAGE_PATH/bin
 nfldb-update
 
-# use `py` shortcut for preferred python version
-shopt -s expand_aliases
-. ~/Base/config/environment.sh
-
 # scrape data from web
-py src/io/web/scrape.py
+venv/bin/python src/data/web/scrape.py
 
-# update database
-psql nfldb -f util/functions.sql
-psql nfldb -f util/views.sql
+# update database (NOTE: sort important since functions must run first)
+for f in $(find src/data/db/sync | sort); do
+    echo "syncing database: $f"
+    psql nfldb -f $f
+done
 
 # update visualizations
 R -q -e "source('src/calc/receivers.r')"

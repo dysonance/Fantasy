@@ -5,9 +5,12 @@ analyze the stability of some player statistic (e.g. rushing yards per play) ove
 =#
 
 # initialize dependencies
+
 using LibPQ
+
 include("src/util/convert.jl")
-include("src/util/query.jl")
+include("src/data/db/io/database.jl")
+
 DB = connect()
 
 # start with one player before generalizing

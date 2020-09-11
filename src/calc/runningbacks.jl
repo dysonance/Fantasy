@@ -1,5 +1,6 @@
 using Query, Statistics
-include("src/util/query.jl")
+
+include("src/data/db/io/databasee.jl")
 include("src/util/utility.jl")
 
 DB = LibPQ.Connection("dbname=nfldb")

@@ -1,4 +1,4 @@
-source("src/util/connect.r")
+source("src/data/db/io/database.r")
 
 YEAR = 2019
 MIN_REL_TGT_PCT = 2/3

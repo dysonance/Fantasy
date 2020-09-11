@@ -1,4 +1,4 @@
-source("src/util/connect.r")
+source("src/data/db/io/database.r")
 
 query = paste(readLines("tmp.sql"), collapse=' ')
 X = RunQuery(CONNECTION, query)
