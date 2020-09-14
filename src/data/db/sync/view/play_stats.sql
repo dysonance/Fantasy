@@ -16,8 +16,8 @@ CREATE MATERIALIZED VIEW play_stats AS
         -- context
         play.down AS down,
         play.yards_to_go AS togo,
-        play.time,
-        play.yardline AS yardline,
+        time_elapsed(play.time) AS time,
+        (play.yardline).pos + 50 AS fldpos,
         drive.pos_team AS offense,
         (CASE
              WHEN drive.pos_team = game.home_team
